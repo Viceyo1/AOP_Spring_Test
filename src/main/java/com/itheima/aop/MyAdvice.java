@@ -8,40 +8,81 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-//@Aspect
+@Aspect
 public class MyAdvice {
     @Pointcut("execution(* com.itheima.dao.BookDao.findName(..))")
     private void pt(){}
 
 
-    @Before("pt()")
+
+    /*
+    ---------------------获得方法的输入参数----------------------------------------
+     */
+//    @Before("pt()")
     public void before(JoinPoint jp) {
+        Object[] args = jp.getArgs();
+        System.out.println(Arrays.toString(args));
 
         System.out.println("before advice ..." );
     }
 
-    @After("pt()")
+//    @After("pt()")
     public void after(JoinPoint jp) {
-
+        Object[] args = jp.getArgs();
+        System.out.println(Arrays.toString(args));
         System.out.println("after advice ...");
     }
 
-    @Around("pt()")
-    public Object around(ProceedingJoinPoint pjp) throws Throwable{
-        Object ret = pjp.proceed();
+//    @Around("pt()")
+//    public Object around(ProceedingJoinPoint pjp) throws Throwable{
+//
+//        Object[] args = pjp.getArgs();
+//        System.out.println(Arrays.toString(args));
+//        //---------------------修改方法的传入数据------------------------------------
+//        args[0] = 666;
+//        Object ret = pjp.proceed(args);
+//
+//        return ret;
+//    }
+
+
+
+    /*
+    ------------------------------------抛异常处理------------------------------------
+     */
+    //    @Around("pt()")
+    public Object around(ProceedingJoinPoint pjp){
+
+        Object[] args = pjp.getArgs();
+        System.out.println(Arrays.toString(args));
+
+        args[0] = 666;
+        Object ret = null;
+        try {
+            ret = pjp.proceed(args);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
 
         return ret;
     }
 
 
-    @AfterReturning("pt()")
-    public void afterReturning() {
-        System.out.println("afterReturning advice ...");
+
+
+/*
+------------------------------------获得方法的输出值------------------------------------
+ */
+    @AfterReturning(value = "pt()", returning = "ret")
+    public void afterReturning(JoinPoint jp , String ret) {                //用该返回值的类型接
+        System.out.println("afterReturning advice ..." + ret);
     }
 
-
-    @AfterThrowing("pt()")
-    public void afterThrowing() {
-        System.out.println("afterThrowing advice ...");
+    /*
+    ------------------------------------获得方法的抛异常的数据------------------------------------
+     */
+    @AfterThrowing(value = "pt()",throwing = "t")
+    public void afterThrowing(Throwable t) {
+        System.out.println("afterThrowing advice ..." + t);
     }
 }
